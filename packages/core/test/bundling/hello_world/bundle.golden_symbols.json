@@ -1,33 +1,9 @@
 [
   {
-    "name": "ACTIVE_INDEX"
-  },
-  {
-    "name": "BINDING_INDEX"
-  },
-  {
-    "name": "BLOOM_MASK"
-  },
-  {
-    "name": "CHILD_HEAD"
-  },
-  {
-    "name": "CHILD_TAIL"
-  },
-  {
     "name": "CLEAN_PROMISE"
   },
   {
-    "name": "CONTAINER_HEADER_OFFSET"
-  },
-  {
-    "name": "CONTEXT"
-  },
-  {
     "name": "ChangeDetectionStrategy"
-  },
-  {
-    "name": "DECLARATION_VIEW"
   },
   {
     "name": "EMPTY_ARRAY"
@@ -36,34 +12,13 @@
     "name": "EMPTY_OBJ"
   },
   {
-    "name": "FLAGS"
+    "name": "InjectFlags"
   },
   {
-    "name": "HEADER_OFFSET"
+    "name": "NG_COMP_DEF"
   },
   {
-    "name": "HOST"
-  },
-  {
-    "name": "INJECTOR"
-  },
-  {
-    "name": "INJECTOR_BLOOM_PARENT_SIZE"
-  },
-  {
-    "name": "MONKEY_PATCH_KEY_NAME"
-  },
-  {
-    "name": "NATIVE"
-  },
-  {
-    "name": "NEXT"
-  },
-  {
-    "name": "NG_COMPONENT_DEF"
-  },
-  {
-    "name": "NG_DIRECTIVE_DEF"
+    "name": "NG_DIR_DEF"
   },
   {
     "name": "NG_ELEMENT_ID"
@@ -78,37 +33,13 @@
     "name": "NO_CHANGE"
   },
   {
-    "name": "NO_PARENT_INJECTOR"
-  },
-  {
     "name": "NodeInjectorFactory"
   },
   {
-    "name": "PARENT"
+    "name": "RuntimeError"
   },
   {
-    "name": "PARENT_INJECTOR"
-  },
-  {
-    "name": "PREORDER_HOOK_FLAGS"
-  },
-  {
-    "name": "RENDERER"
-  },
-  {
-    "name": "RENDERER_FACTORY"
-  },
-  {
-    "name": "SANITIZER"
-  },
-  {
-    "name": "TVIEW"
-  },
-  {
-    "name": "TYPE"
-  },
-  {
-    "name": "T_HOST"
+    "name": "SimpleChange"
   },
   {
     "name": "ViewEncapsulation"
@@ -126,31 +57,19 @@
     "name": "__window"
   },
   {
-    "name": "_elementExitFn"
-  },
-  {
     "name": "_global"
   },
   {
     "name": "_renderCompCount"
   },
   {
-    "name": "_selectedIndex"
+    "name": "allocExpando"
   },
   {
-    "name": "addToViewTree"
-  },
-  {
-    "name": "appendChild"
+    "name": "allocLFrame"
   },
   {
     "name": "attachPatchData"
-  },
-  {
-    "name": "baseResolveDirective"
-  },
-  {
-    "name": "bloomAdd"
   },
   {
     "name": "callHook"
@@ -159,49 +78,28 @@
     "name": "callHooks"
   },
   {
-    "name": "checkNoChangesMode"
+    "name": "concatStringsWithSpace"
+  },
+  {
+    "name": "createLFrame"
   },
   {
     "name": "createLView"
   },
   {
-    "name": "createRootComponent"
-  },
-  {
-    "name": "createRootComponentView"
-  },
-  {
-    "name": "createRootContext"
-  },
-  {
-    "name": "createTNode"
-  },
-  {
-    "name": "createTNodeAtIndex"
-  },
-  {
     "name": "createTView"
-  },
-  {
-    "name": "createTextNode"
-  },
-  {
-    "name": "createViewBlueprint"
   },
   {
     "name": "defaultScheduler"
   },
   {
-    "name": "diPublicInInjector"
-  },
-  {
     "name": "domRendererFactory3"
   },
   {
-    "name": "executeCheckHooks"
+    "name": "enterView"
   },
   {
-    "name": "executeElementExitFn"
+    "name": "executeCheckHooks"
   },
   {
     "name": "executeInitAndCheckHooks"
@@ -219,112 +117,46 @@
     "name": "extractPipeDef"
   },
   {
-    "name": "generateExpandoInstructionBlock"
-  },
-  {
-    "name": "getBeforeNodeForView"
-  },
-  {
-    "name": "getCheckNoChangesMode"
-  },
-  {
     "name": "getClosureSafeProperty"
   },
   {
     "name": "getComponentDef"
   },
   {
-    "name": "getComponentViewByIndex"
+    "name": "getComponentLViewByIndex"
   },
   {
-    "name": "getContainerRenderParent"
+    "name": "getCurrentTNode"
   },
   {
-    "name": "getDirectiveDef"
+    "name": "getCurrentTNodePlaceholderOk"
   },
   {
-    "name": "getFactoryDef"
+    "name": "getDeclarationTNode"
   },
   {
-    "name": "getHostNative"
-  },
-  {
-    "name": "getInjectorIndex"
-  },
-  {
-    "name": "getIsParent"
-  },
-  {
-    "name": "getLContainer"
-  },
-  {
-    "name": "getLView"
-  },
-  {
-    "name": "getLViewParent"
-  },
-  {
-    "name": "getNativeAnchorNode"
+    "name": "getFirstLContainer"
   },
   {
     "name": "getNativeByTNode"
   },
   {
-    "name": "getNativeByTNodeOrNull"
+    "name": "getNearestLContainer"
   },
   {
-    "name": "getNodeInjectable"
-  },
-  {
-    "name": "getOrCreateNodeInjectorForNode"
+    "name": "getNextLContainer"
   },
   {
     "name": "getOrCreateTNode"
   },
   {
-    "name": "getOrCreateTView"
-  },
-  {
-    "name": "getParentInjectorIndex"
-  },
-  {
-    "name": "getParentInjectorLocation"
-  },
-  {
-    "name": "getParentInjectorView"
-  },
-  {
-    "name": "getParentInjectorViewOffset"
-  },
-  {
-    "name": "getPipeDef"
-  },
-  {
-    "name": "getPreviousOrParentTNode"
-  },
-  {
-    "name": "getRenderParent"
-  },
-  {
-    "name": "getSelectedIndex"
-  },
-  {
-    "name": "hasActiveElementFlag"
-  },
-  {
-    "name": "hasParentInjector"
+    "name": "getSimpleChangesStore"
   },
   {
     "name": "includeViewProviders"
   },
   {
-    "name": "incrementActiveDirectiveId"
-  },
-  {
     "name": "incrementInitPhaseFlags"
-  },
-  {
-    "name": "initNodeFlags"
   },
   {
     "name": "insertBloom"
@@ -333,61 +165,34 @@
     "name": "instantiateRootComponent"
   },
   {
+    "name": "instructionState"
+  },
+  {
     "name": "invertObject"
   },
   {
-    "name": "invokeHostBindingsInCreationMode"
-  },
-  {
-    "name": "isComponentDef"
-  },
-  {
-    "name": "isFactory"
-  },
-  {
-    "name": "isLContainer"
-  },
-  {
-    "name": "isLView"
+    "name": "isInCheckNoChangesMode"
   },
   {
     "name": "isProceduralRenderer"
   },
   {
-    "name": "isRootView"
+    "name": "leaveDI"
   },
   {
-    "name": "locateHostElement"
+    "name": "leaveView"
   },
   {
-    "name": "markAsComponentHost"
-  },
-  {
-    "name": "namespaceHTMLInternal"
-  },
-  {
-    "name": "nativeAppendChild"
+    "name": "leaveViewLight"
   },
   {
     "name": "nativeAppendOrInsertBefore"
   },
   {
-    "name": "nativeInsertBefore"
-  },
-  {
-    "name": "nativeParentNode"
-  },
-  {
     "name": "nextNgElementId"
   },
   {
-    "name": "noSideEffects"
-  },
-  {
-    "name": "postProcessBaseDirective"
-  },
-  {
-    "name": "refreshChildComponents"
+    "name": "ngOnChangesSetInput"
   },
   {
     "name": "refreshComponent"
@@ -396,55 +201,31 @@
     "name": "refreshContentQueries"
   },
   {
-    "name": "refreshDynamicEmbeddedViews"
-  },
-  {
     "name": "refreshView"
   },
   {
-    "name": "renderChildComponents"
+    "name": "registerHostBindingOpCodes"
+  },
+  {
+    "name": "rememberChangeHistoryAndInvokeOnChangesHook"
   },
   {
     "name": "renderComponent"
-  },
-  {
-    "name": "renderComponent"
-  },
-  {
-    "name": "renderStringify"
   },
   {
     "name": "renderView"
   },
   {
-    "name": "resetComponentState"
-  },
-  {
     "name": "resetPreOrderHookFlags"
   },
   {
-    "name": "selectIndexInternal"
-  },
-  {
-    "name": "selectView"
-  },
-  {
-    "name": "setActiveHostElement"
-  },
-  {
-    "name": "setBindingRoot"
-  },
-  {
-    "name": "setCurrentDirectiveDef"
+    "name": "setBindingRootForHostBindings"
   },
   {
     "name": "setCurrentQueryIndex"
   },
   {
-    "name": "setCurrentStyleSanitizer"
-  },
-  {
-    "name": "setHostBindings"
+    "name": "setCurrentTNode"
   },
   {
     "name": "setIncludeViewProviders"
@@ -453,31 +234,13 @@
     "name": "setInjectImplementation"
   },
   {
-    "name": "setIsNotParent"
-  },
-  {
-    "name": "setPreviousOrParentTNode"
-  },
-  {
     "name": "setSelectedIndex"
   },
   {
-    "name": "setTNodeAndViewData"
-  },
-  {
-    "name": "stringifyForError"
-  },
-  {
-    "name": "syncViewWithBlueprint"
-  },
-  {
-    "name": "unwrapRNode"
+    "name": "updateTransplantedViewCount"
   },
   {
     "name": "viewAttachedToChangeDetector"
-  },
-  {
-    "name": "ɵɵdefineComponent"
   },
   {
     "name": "ɵɵtext"

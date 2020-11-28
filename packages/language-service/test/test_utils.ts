@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright Google Inc. All Rights Reserved.
+ * Copyright Google LLC All Rights Reserved.
  *
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
@@ -57,11 +57,11 @@ function isFile(path: string) {
 function loadTourOfHeroes(): ReadonlyMap<string, string> {
   const {TEST_SRCDIR} = process.env;
   const root =
-      path.join(TEST_SRCDIR !, 'angular', 'packages', 'language-service', 'test', 'project');
+      path.join(TEST_SRCDIR!, 'angular', 'packages', 'language-service', 'test', 'project');
   const dirs = [root];
   const files = new Map<string, string>();
   while (dirs.length) {
-    const dirPath = dirs.pop() !;
+    const dirPath = dirs.pop()!;
     for (const filePath of fs.readdirSync(dirPath)) {
       const absPath = path.join(dirPath, filePath);
       if (isFile(absPath)) {
@@ -92,7 +92,7 @@ const COMPILER_OPTIONS: Readonly<ts.CompilerOptions> = {
 };
 
 export class MockTypescriptHost implements ts.LanguageServiceHost {
-  private angularPath?: string;
+  private readonly angularPath: string;
   private readonly nodeModulesPath: string;
   private readonly scriptVersion = new Map<string, number>();
   private readonly overrides = new Map<string, string>();
@@ -101,6 +101,7 @@ export class MockTypescriptHost implements ts.LanguageServiceHost {
   private readonly overrideDirectory = new Set<string>();
   private readonly existsCache = new Map<string, boolean>();
   private readonly fileCache = new Map<string, string|undefined>();
+  errors: string[] = [];
 
   constructor(
       private readonly scriptNames: string[],
@@ -114,9 +115,7 @@ export class MockTypescriptHost implements ts.LanguageServiceHost {
 
   override(fileName: string, content: string) {
     this.scriptVersion.set(fileName, (this.scriptVersion.get(fileName) || 0) + 1);
-    if (fileName.endsWith('.ts')) {
-      this.projectVersion++;
-    }
+    this.projectVersion++;
     if (content) {
       this.overrides.set(fileName, content);
       this.overrideDirectory.add(path.dirname(fileName));
@@ -126,25 +125,47 @@ export class MockTypescriptHost implements ts.LanguageServiceHost {
     return content;
   }
 
+  /**
+   * Override the inline template in `fileName`.
+   * @param fileName path to component that has inline template
+   * @param content new template
+   *
+   * @return the new content of the file
+   */
+  overrideInlineTemplate(fileName: string, content: string): string {
+    const originalContent = this.getRawFileContent(fileName)!;
+    const newContent =
+        originalContent.replace(/template: `([\s\S]+?)`/, `template: \`${content}\``);
+    return this.override(fileName, newContent);
+  }
+
   addScript(fileName: string, content: string) {
+    if (this.scriptVersion.has(fileName)) {
+      throw new Error(`${fileName} is already in the root files.`);
+    }
+    this.scriptVersion.set(fileName, 0);
     this.projectVersion++;
     this.overrides.set(fileName, content);
     this.overrideDirectory.add(path.dirname(fileName));
     this.scriptNames.push(fileName);
   }
 
-  forgetAngular() { this.angularPath = undefined; }
-
   overrideOptions(options: Partial<ts.CompilerOptions>) {
     this.options = {...this.options, ...options};
     this.projectVersion++;
   }
 
-  getCompilationSettings(): ts.CompilerOptions { return {...this.options}; }
+  getCompilationSettings(): ts.CompilerOptions {
+    return {...this.options};
+  }
 
-  getProjectVersion(): string { return this.projectVersion.toString(); }
+  getProjectVersion(): string {
+    return this.projectVersion.toString();
+  }
 
-  getScriptFileNames(): string[] { return this.scriptNames; }
+  getScriptFileNames(): string[] {
+    return this.scriptNames;
+  }
 
   getScriptVersion(fileName: string): string {
     return (this.scriptVersion.get(fileName) || 0).toString();
@@ -156,9 +177,13 @@ export class MockTypescriptHost implements ts.LanguageServiceHost {
     return undefined;
   }
 
-  getCurrentDirectory(): string { return '/'; }
+  getCurrentDirectory(): string {
+    return '/';
+  }
 
-  getDefaultLibFileName(options: ts.CompilerOptions): string { return 'lib.d.ts'; }
+  getDefaultLibFileName(options: ts.CompilerOptions): string {
+    return 'lib.d.ts';
+  }
 
   directoryExists(directoryName: string): boolean {
     if (this.overrideDirectory.has(directoryName)) return true;
@@ -172,7 +197,9 @@ export class MockTypescriptHost implements ts.LanguageServiceHost {
     return this.pathExists(effectiveName);
   }
 
-  fileExists(fileName: string): boolean { return this.getRawFileContent(fileName) != null; }
+  fileExists(fileName: string): boolean {
+    return this.getRawFileContent(fileName) != null;
+  }
 
   readFile(fileName: string): string|undefined {
     const content = this.getRawFileContent(fileName);
@@ -181,24 +208,29 @@ export class MockTypescriptHost implements ts.LanguageServiceHost {
     }
   }
 
-  getMarkerLocations(fileName: string): {[name: string]: number}|undefined {
-    let content = this.getRawFileContent(fileName);
-    if (content) {
-      return getLocationMarkers(content);
-    }
-  }
-
-  getReferenceMarkers(fileName: string): ReferenceResult|undefined {
-    let content = this.getRawFileContent(fileName);
-    if (content) {
-      return getReferenceMarkers(content);
-    }
-  }
-
   /**
    * Reset the project to its original state, effectively removing all overrides.
    */
   reset() {
+    // project version and script version must be monotonically increasing,
+    // they must not be reset to zero.
+    this.projectVersion++;
+    for (const fileName of this.overrides.keys()) {
+      const version = this.scriptVersion.get(fileName);
+      if (version === undefined) {
+        throw new Error(`No prior version found for ${fileName}`);
+      }
+      this.scriptVersion.set(fileName, version + 1);
+    }
+    // Remove overrides from scriptNames
+    let length = 0;
+    for (let i = 0; i < this.scriptNames.length; ++i) {
+      const fileName = this.scriptNames[i];
+      if (!this.overrides.has(fileName)) {
+        this.scriptNames[length++] = fileName;
+      }
+    }
+    this.scriptNames.splice(length);
     this.overrides.clear();
     this.overrideDirectory.clear();
     this.options = COMPILER_OPTIONS;
@@ -237,7 +269,7 @@ export class MockTypescriptHost implements ts.LanguageServiceHost {
 
   private pathExists(path: string): boolean {
     if (this.existsCache.has(path)) {
-      return this.existsCache.get(path) !;
+      return this.existsCache.get(path)!;
     }
 
     const exists = fs.existsSync(path);
@@ -256,7 +288,7 @@ export class MockTypescriptHost implements ts.LanguageServiceHost {
           return result;
         }
       }
-      if (this.angularPath && name.startsWith('/' + node_modules + at_angular)) {
+      if (name.startsWith('/' + node_modules + at_angular)) {
         return this.myPath.posix.join(
             this.angularPath, name.substr(node_modules.length + at_angular.length + 1));
       }
@@ -279,61 +311,98 @@ export class MockTypescriptHost implements ts.LanguageServiceHost {
   }
 
   /**
-   * Returns the definition marker ᐱselectorᐱ for the specified 'selector'.
+   * Returns the definition marker `ᐱselectorᐱ` for the specified 'selector'.
    * Asserts that marker exists.
    * @param fileName name of the file
    * @param selector name of the marker
    */
   getDefinitionMarkerFor(fileName: string, selector: string): ts.TextSpan {
-    const markers = this.getReferenceMarkers(fileName);
-    expect(markers).toBeDefined();
-    expect(Object.keys(markers !.definitions)).toContain(selector);
-    expect(markers !.definitions[selector].length).toBe(1);
-    const marker = markers !.definitions[selector][0];
-    expect(marker.start).toBeLessThanOrEqual(marker.end);
+    const content = this.getRawFileContent(fileName);
+    if (!content) {
+      throw new Error(`File does not exist: ${fileName}`);
+    }
+    const markers = getReferenceMarkers(content);
+    const definitions = markers.definitions[selector];
+    if (!definitions || !definitions.length) {
+      throw new Error(`Failed to find marker '${selector}' in ${fileName}`);
+    }
+    if (definitions.length > 1) {
+      throw new Error(`Multiple positions found for '${selector}' in ${fileName}`);
+    }
+    const {start, end} = definitions[0];
+    if (start > end) {
+      throw new Error(`Marker '${selector}' in ${fileName} is invalid: ${start} > ${end}`);
+    }
     return {
-      start: marker.start,
-      length: marker.end - marker.start,
+      start,
+      length: end - start,
     };
   }
 
   /**
-   * Returns the reference marker «selector» for the specified 'selector'.
+   * Returns the reference marker `«selector»` for the specified 'selector'.
    * Asserts that marker exists.
    * @param fileName name of the file
    * @param selector name of the marker
    */
   getReferenceMarkerFor(fileName: string, selector: string): ts.TextSpan {
-    const markers = this.getReferenceMarkers(fileName);
-    expect(markers).toBeDefined();
-    expect(Object.keys(markers !.references)).toContain(selector);
-    expect(markers !.references[selector].length).toBe(1);
-    const marker = markers !.references[selector][0];
-    expect(marker.start).toBeLessThanOrEqual(marker.end);
+    const content = this.getRawFileContent(fileName);
+    if (!content) {
+      throw new Error(`File does not exist: ${fileName}`);
+    }
+    const markers = getReferenceMarkers(content);
+    const references = markers.references[selector];
+    if (!references || !references.length) {
+      throw new Error(`Failed to find marker '${selector}' in ${fileName}`);
+    }
+    if (references.length > 1) {
+      throw new Error(`Multiple positions found for '${selector}' in ${fileName}`);
+    }
+    const {start, end} = references[0];
+    if (start > end) {
+      throw new Error(`Marker '${selector}' in ${fileName} is invalid: ${start} > ${end}`);
+    }
     return {
-      start: marker.start,
-      length: marker.end - marker.start,
+      start,
+      length: end - start,
     };
   }
 
   /**
-   * Returns the location marker ~{selector} for the specified 'selector'.
+   * Returns the location marker `~{selector}` or the marker pair
+   * `~{start-selector}` and `~{end-selector}` for the specified 'selector'.
    * Asserts that marker exists.
    * @param fileName name of the file
    * @param selector name of the marker
    */
   getLocationMarkerFor(fileName: string, selector: string): ts.TextSpan {
-    const markers = this.getMarkerLocations(fileName);
-    expect(markers).toBeDefined();
-    const start = markers ![`start-${selector}`];
-    expect(start).toBeDefined();
-    const end = markers ![`end-${selector}`];
-    expect(end).toBeDefined();
-    expect(start).toBeLessThanOrEqual(end);
-    return {
-      start: start,
-      length: end - start,
-    };
+    const content = this.getRawFileContent(fileName);
+    if (!content) {
+      throw new Error(`File does not exist: ${fileName}`);
+    }
+    const markers = getLocationMarkers(content);
+    // Look for just the selector itself
+    const position = markers[selector];
+    if (position !== undefined) {
+      return {
+        start: position,
+        length: 0,
+      };
+    }
+    // Look for start and end markers for the selector
+    const start = markers[`start-${selector}`];
+    const end = markers[`end-${selector}`];
+    if (start !== undefined && end !== undefined) {
+      return {
+        start,
+        length: end - start,
+      };
+    }
+    throw new Error(`Failed to find marker '${selector}' in ${fileName}`);
+  }
+
+  error(msg: string) {
+    this.errors.push(msg);
   }
 }
 
@@ -373,8 +442,9 @@ function getReferenceMarkers(value: string): ReferenceResult {
 
   let adjustment = 0;
   const text = value.replace(
-      referenceMarker, (match: string, text: string, reference: string, _: string,
-                        definition: string, definitionName: string, index: number): string => {
+      referenceMarker,
+      (match: string, text: string, reference: string, _: string, definition: string,
+       definitionName: string, index: number): string => {
         const result = reference ? text : text.replace(/ᐱ/g, '');
         const span: Span = {start: index - adjustment, end: index - adjustment + result.length};
         const markers = reference ? references : definitions;

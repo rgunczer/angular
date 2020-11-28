@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright Google Inc. All Rights Reserved.
+ * Copyright Google LLC All Rights Reserved.
  *
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
@@ -12,17 +12,19 @@
  * for late binding of `@angular/compiler` for JIT purposes.
  *
  * This file has two copies. Please ensure that they are in sync:
- *  - packages/compiler/src/compiler_facade_interface.ts             (master)
- *  - packages/core/src/render3/jit/compiler_facade_interface.ts     (copy)
+ *  - packages/compiler/src/compiler_facade_interface.ts          (main)
+ *  - packages/core/src/compiler/compiler_facade_interface.ts     (replica)
  *
  * Please ensure that the two files are in sync using this command:
  * ```
  * cp packages/compiler/src/compiler_facade_interface.ts \
- *    packages/core/src/render3/jit/compiler_facade_interface.ts
+ *    packages/core/src/compiler/compiler_facade_interface.ts
  * ```
  */
 
-export interface ExportedCompilerFacade { ɵcompilerFacade: CompilerFacade; }
+export interface ExportedCompilerFacade {
+  ɵcompilerFacade: CompilerFacade;
+}
 
 export interface CompilerFacade {
   compilePipe(angularCoreEnv: CoreEnvironment, sourceMapUrl: string, meta: R3PipeMetadataFacade):
@@ -37,21 +39,22 @@ export interface CompilerFacade {
       angularCoreEnv: CoreEnvironment, sourceMapUrl: string, meta: R3DirectiveMetadataFacade): any;
   compileComponent(
       angularCoreEnv: CoreEnvironment, sourceMapUrl: string, meta: R3ComponentMetadataFacade): any;
-  compileBase(angularCoreEnv: CoreEnvironment, sourceMapUrl: string, meta: R3BaseMetadataFacade):
-      any;
   compileFactory(
       angularCoreEnv: CoreEnvironment, sourceMapUrl: string, meta: R3FactoryDefMetadataFacade): any;
 
   createParseSourceSpan(kind: string, typeName: string, sourceUrl: string): ParseSourceSpan;
 
   R3ResolvedDependencyType: typeof R3ResolvedDependencyType;
-  ResourceLoader: {new (): ResourceLoader};
+  R3FactoryTarget: typeof R3FactoryTarget;
+  ResourceLoader: {new(): ResourceLoader};
 }
 
-export interface CoreEnvironment { [name: string]: Function; }
+export interface CoreEnvironment {
+  [name: string]: Function;
+}
 
 export type ResourceLoader = {
-  get(url: string): Promise<string>| string;
+  get(url: string): Promise<string>|string;
 };
 
 export type StringMap = {
@@ -59,7 +62,7 @@ export type StringMap = {
 };
 
 export type StringMapWithRename = {
-  [key: string]: string | [string, string];
+  [key: string]: string|[string, string];
 };
 
 export type Provider = any;
@@ -68,6 +71,15 @@ export enum R3ResolvedDependencyType {
   Token = 0,
   Attribute = 1,
   ChangeDetectorRef = 2,
+  Invalid = 3,
+}
+
+export enum R3FactoryTarget {
+  Directive = 0,
+  Component = 1,
+  Injectable = 2,
+  Pipe = 3,
+  NgModule = 4,
 }
 
 export interface R3DependencyMetadataFacade {
@@ -106,7 +118,6 @@ export interface R3NgModuleMetadataFacade {
   declarations: Function[];
   imports: Function[];
   exports: Function[];
-  emitInline: boolean;
   schemas: {name: string}[]|null;
   id: string|null;
 }
@@ -143,7 +154,7 @@ export interface R3ComponentMetadataFacade extends R3DirectiveMetadataFacade {
   preserveWhitespaces: boolean;
   animations: any[]|undefined;
   pipes: Map<string, any>;
-  directives: {selector: string, expression: any}[];
+  directives: R3UsedDirectiveMetadata[];
   styles: string[];
   encapsulation: ViewEncapsulation;
   viewProviders: Provider[]|null;
@@ -151,14 +162,12 @@ export interface R3ComponentMetadataFacade extends R3DirectiveMetadataFacade {
   changeDetection?: ChangeDetectionStrategy;
 }
 
-export interface R3BaseMetadataFacade {
-  name: string;
+export interface R3UsedDirectiveMetadata {
+  selector: string;
+  inputs: string[];
+  outputs: string[];
+  exportAs: string[]|null;
   type: any;
-  propMetadata: {[key: string]: any[]};
-  inputs?: {[key: string]: string | [string, string]};
-  outputs?: {[key: string]: string};
-  queries?: R3QueryMetadataFacade[];
-  viewQueries?: R3QueryMetadataFacade[];
 }
 
 export interface R3FactoryDefMetadataFacade {
@@ -167,10 +176,15 @@ export interface R3FactoryDefMetadataFacade {
   typeArgumentCount: number;
   deps: R3DependencyMetadataFacade[]|null;
   injectFn: 'directiveInject'|'inject';
-  isPipe: boolean;
+  target: R3FactoryTarget;
 }
 
-export type ViewEncapsulation = number;
+export enum ViewEncapsulation {
+  Emulated = 0,
+  // Historically the 1 value was for `Native` encapsulation which has been removed as of v11.
+  None = 2,
+  ShadowDom = 3
+}
 
 export type ChangeDetectionStrategy = number;
 
@@ -187,4 +201,5 @@ export interface ParseSourceSpan {
   start: any;
   end: any;
   details: any;
+  fullStart: any;
 }
